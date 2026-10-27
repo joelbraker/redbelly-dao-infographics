@@ -5,7 +5,7 @@
   <img src="assets/brand/wordmark-on-light.svg" alt="Redbelly" height="34">
 </picture>
 
-<h1>Redbelly Made Simple</h1>
+<h1>Redbelly DAO Infographics</h1>
 
 <p><b>New to Redbelly? Start here.</b><br>
 An 11-part visual explainer series on the core ideas behind Redbelly Network,<br>
