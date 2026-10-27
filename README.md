@@ -20,10 +20,12 @@ from DBFT consensus to Project Acacia, in plain language.</p>
 </p>
 
 <p>
+  <a href="https://redbelly-dao-infographics.vercel.app/"><b>Live site</b></a> ·
   <a href="#the-series">The series</a> ·
   <a href="#formats">Formats</a> ·
-  <a href="#view-it-locally">View it locally</a> ·
+  <a href="#view-the-showcase">Showcase</a> ·
   <a href="#edit-and-re-export">Edit and re-export</a> ·
+  <a href="#verification">Verification</a> ·
   <a href="SOURCES.md">Sources</a>
 </p>
 
@@ -146,21 +148,22 @@ Click any image to open it at full size. The links under each title go to every 
 
 Every plate is laid out three times, not cropped, so each format reads well on its own.
 
-| Format | Size (px) | File suffix | Suited to |
-|---|---|---|---|
-| Landscape 16:9 | 3840 × 2160 | `*_16x9.png` | Slides, websites, X and YouTube |
-| Portrait 4:5 | 2160 × 2700 | `*_4x5.png` | Instagram and LinkedIn feeds |
-| Square 1:1 | 2160 × 2160 | `*_1x1.png` | Square feeds and thumbnails |
+| Format | Size (px) | Minimum required | File suffix | Suited to |
+|---|---|---|---|---|
+| Landscape 16:9 | 3840 × 2160 | 1920 × 1080 | `*_16x9.png` | Slides, websites, X and YouTube |
+| Portrait 4:5 | 2160 × 2700 | 1080 × 1350 | `*_4x5.png` | Instagram and LinkedIn feeds |
+| Square 1:1 | 2160 × 2160 | 1080 × 1080 | `*_1x1.png` | Square feeds and thumbnails |
 
-## View it locally
+## View the showcase
+
+The showcase is live at **[redbelly-dao-infographics.vercel.app](https://redbelly-dao-infographics.vercel.app/)**. To run it locally, download or clone this repository and serve the folder:
 
 ```bash
-git clone https://github.com/joelbraker/redbelly-dao-infographics.git
 cd redbelly-dao-infographics
 python3 -m http.server 8000   # then open http://localhost:8000
 ```
 
-Opening `index.html` straight from disk also works. The showcase site includes:
+Opening `index.html` straight from disk also works. There is no build step, and the site works on phones as well as desktops. It includes:
 
 - **Live plates** with motion, a format switcher and a side-by-side view of all three formats
 - **A honeycomb topic picker** and keyboard browsing with <kbd>←</kbd> <kbd>→</kbd>
@@ -199,6 +202,20 @@ node export.js 04 10 --scale=2 --out=png   # only plates 04 and 10
 ```
 
 The exporter prints each file it writes and flags `OVERFLOW` if any text runs outside its frame.
+
+## Verification
+
+Every claim in this repository can be checked:
+
+| Check | How to verify | Result |
+|---|---|---|
+| All 11 topics in all 3 formats | List `png/`: 11 plates × 3 formats | 33 files, none missing |
+| Image sizes | Open any PNG, or see [Formats](#formats) | Every file is 2× the minimum size |
+| PNGs match the source | `node export.js --scale=2 --out=check`, then compare `check/` with `png/` | The same 33 images are re-rendered |
+| No text cut off | The exporter flags `OVERFLOW` on any frame | No flags on any of the 33 frames |
+| Facts | Every line on every plate is mapped to its source URL in [`SOURCES.md`](SOURCES.md) | All sources checked on 27 October 2026 |
+| Governance | Plate 10 follows the DAO voting platform and the TASK-23 changelog | No Constitution v1.2 or Snapshot rules used |
+| Licences | Fonts are SIL OFL 1.1, the logo comes from the Redbelly brand kit, and the diagrams and icons are original | See [Licences](#licences) |
 
 ## Project structure
 
@@ -258,7 +275,7 @@ Every fact on the plates is mapped to the resource it comes from in [`SOURCES.md
 | Accent | `#FF5050` Redbelly red, the one accent colour |
 | Ground | `#142530` ink · `#283A46` slate · `#ECEBEC` paper |
 
-## Credits
+## Licences
 
 - **Fonts.** Readex Pro and Be Vietnam Pro are licensed under the SIL Open Font License 1.1. The licence texts are in [`assets/fonts/`](assets/fonts).
 - **Brand.** The Redbelly name, wordmark and isotype belong to Redbelly Network. They are used unaltered, as supplied in the Redbelly brand guidelines.
