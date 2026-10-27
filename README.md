@@ -5,9 +5,9 @@
   <img src="assets/brand/wordmark-on-light.svg" alt="Redbelly" height="34">
 </picture>
 
-<h1>Redbelly Explained</h1>
+<h1>Redbelly Made Simple</h1>
 
-<p><b>Redbelly, made simple.</b><br>
+<p><b>New to Redbelly? Start here.</b><br>
 An 11-part visual explainer series on the core ideas behind Redbelly Network,<br>
 from DBFT consensus to Project Acacia, in plain language.</p>
 
@@ -37,7 +37,7 @@ from DBFT consensus to Project Acacia, in plain language.</p>
 
 ## About
 
-New to Redbelly? Start here. Each image explains one core idea in under a minute. The series comes as 33 ready-to-post PNGs, a showcase website with live animated plates, and the editable source behind both.
+Each image explains one core idea in under a minute. The series comes as 33 ready-to-post PNGs, a showcase website with live animated plates, and the editable source behind both.
 
 <table>
   <tr>
