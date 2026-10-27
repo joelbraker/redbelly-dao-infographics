@@ -1,0 +1,146 @@
+/* Plate system. Brand palette from the Redbelly Brand Guidelines (media kit). */
+@font-face { font-family: 'Be Vietnam Pro'; src: url('../assets/fonts/BeVietnamPro-Light.ttf') format('truetype'); font-weight: 300; }
+@font-face { font-family: 'Be Vietnam Pro'; src: url('../assets/fonts/BeVietnamPro-Regular.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Be Vietnam Pro'; src: url('../assets/fonts/BeVietnamPro-Medium.ttf') format('truetype'); font-weight: 500; }
+@font-face { font-family: 'Be Vietnam Pro'; src: url('../assets/fonts/BeVietnamPro-SemiBold.ttf') format('truetype'); font-weight: 600; }
+@font-face { font-family: 'Be Vietnam Pro'; src: url('../assets/fonts/BeVietnamPro-Bold.ttf') format('truetype'); font-weight: 700; }
+@font-face { font-family: 'Be Vietnam Pro'; src: url('../assets/fonts/BeVietnamPro-ExtraBold.ttf') format('truetype'); font-weight: 800; }
+
+/* Two brand faces: Readex Pro for headers and subheaders (redbelly.network/brand: Readex Pro Medium),
+   Be Vietnam Pro for running text (DAO brand tokens). Both SIL OFL. */
+@font-face { font-family: 'Readex Pro'; src: url('../assets/fonts/ReadexPro-400.ttf') format('truetype'); font-weight: 400; }
+@font-face { font-family: 'Readex Pro'; src: url('../assets/fonts/ReadexPro-500.ttf') format('truetype'); font-weight: 500; }
+@font-face { font-family: 'Readex Pro'; src: url('../assets/fonts/ReadexPro-600.ttf') format('truetype'); font-weight: 600; }
+@font-face { font-family: 'Readex Pro'; src: url('../assets/fonts/ReadexPro-700.ttf') format('truetype'); font-weight: 700; }
+
+.plate {
+  --ink: #142530; --slate: #283A46; --red: #FF5050; --paper: #ECEBEC; --mist: #DCDCDC; --grey: #848B91;
+  position: relative; overflow: hidden; box-sizing: border-box;
+  background: var(--ink); color: var(--paper);
+  --display: 'Readex Pro', 'Be Vietnam Pro', sans-serif; --text: 'Be Vietnam Pro', sans-serif;
+  font-family: var(--text);
+  display: grid; column-gap: var(--gap); row-gap: 0;
+  padding: var(--pt) var(--pr) var(--pb) var(--pl);
+  -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+}
+.plate * { box-sizing: border-box; }
+
+/* formats */
+.plate.f169 { width: 1920px; height: 1080px; --pt: 60px; --pr: 84px; --pb: 52px; --pl: 112px; --gap: 72px;
+  grid-template-columns: 870px 1fr; grid-template-rows: auto auto 1fr auto;
+  grid-template-areas: 'meta meta' 'head fig' 'notes fig' 'src src';
+  --title: 90px; --lede: 37px; --note: 32px; --meta: 22px; --kick: 28px; --src: 21px; --spine: 16px; }
+.plate.f45 { width: 1080px; height: 1350px; --pt: 56px; --pr: 64px; --pb: 48px; --pl: 92px; --gap: 0px;
+  grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto auto;
+  grid-template-areas: 'meta' 'head' 'fig' 'notes' 'src';
+  --title: 72px; --lede: 31px; --note: 29px; --meta: 21px; --kick: 26px; --src: 20px; --spine: 14px; }
+.plate.f11 { width: 1080px; height: 1080px; --pt: 52px; --pr: 60px; --pb: 44px; --pl: 88px; --gap: 36px;
+  grid-template-columns: 530px 1fr; grid-template-rows: auto auto 1fr auto;
+  grid-template-areas: 'meta meta' 'head head' 'fig notes' 'src src';
+  --title: 68px; --lede: 31px; --note: 26px; --meta: 20px; --kick: 24px; --src: 19px; --spine: 14px; }
+
+/* brand spine, from the guideline cover */
+.spine { position: absolute; left: 0; top: 0; bottom: 0; width: var(--spine); background: var(--red); }
+
+/* brand pattern: tiled isotypes, fading out toward the reading side */
+.lattice { position: absolute; inset: 0; width: 100%; height: 100%; color: #172A35; pointer-events: none; z-index: 0; }
+.f169 .lattice { -webkit-mask-image: linear-gradient(100deg, transparent 38%, #000 92%); mask-image: linear-gradient(100deg, transparent 38%, #000 92%); }
+.f45 .lattice, .f11 .lattice { -webkit-mask-image: radial-gradient(130% 70% at 100% 0%, #000 0%, transparent 62%); mask-image: radial-gradient(130% 70% at 100% 0%, #000 0%, transparent 62%); }
+
+/* registration marks, like a print proof */
+.reg { position: absolute; width: 22px; height: 22px; z-index: 0; }
+.reg::before, .reg::after { content: ''; position: absolute; background: #3D5361; }
+.reg::before { left: 10px; top: 0; width: 2px; height: 22px; }
+.reg::after { top: 10px; left: 0; height: 2px; width: 22px; }
+.reg.tl { left: calc(var(--spine) + 18px); top: 18px; }
+.reg.tr { right: 18px; top: 18px; }
+.reg.bl { left: calc(var(--spine) + 18px); bottom: 18px; }
+.reg.br { right: 18px; bottom: 18px; }
+
+/* running label up the right edge */
+.side { position: absolute; z-index: 0; right: calc(var(--pr) / 2); top: 50%; transform: translate(50%, -50%) rotate(180deg); writing-mode: vertical-rl;
+  font-family: var(--display); font-weight: 500; font-size: calc(var(--meta) * .66); letter-spacing: .34em; text-transform: uppercase; color: #4A5D6A; white-space: nowrap; }
+
+.plate > *:not(.spine):not(.lattice):not(.reg):not(.side) { position: relative; z-index: 1; }
+
+/* meta row */
+.meta { grid-area: meta; display: flex; align-items: center; justify-content: space-between; font-size: var(--meta); color: var(--grey); font-weight: 500; letter-spacing: .02em; }
+.meta .wm svg { height: calc(var(--meta) * 1.05); width: auto; display: block; }
+.meta .series { display: flex; align-items: center; gap: .9em; }
+.meta .idx { display: flex; gap: .32em; }
+.meta .idx svg { width: .72em; height: .82em; display: block; }
+.meta .series b { font-family: var(--display); color: var(--paper); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* heading block */
+.head { grid-area: head; padding-top: calc(var(--title) * .62); }
+.kicker { display: inline-flex; align-items: baseline; gap: .7em; font-family: var(--display); font-size: var(--kick); font-weight: 500; color: var(--mist);
+  /* red rule runs in from the page edge, as in the guideline section headers */
+  margin-left: calc(-1 * var(--pl)); padding-left: var(--pl); padding-right: 1.1em; padding-bottom: .42em;
+  border-bottom: 4px solid var(--red); }
+.kicker b { color: var(--red); font-weight: 800; font-variant-numeric: tabular-nums; }
+.title { font-family: var(--display); font-size: var(--title); line-height: 1.06; font-weight: 500; letter-spacing: -0.02em; margin: .42em 0 0; max-width: 15ch; text-wrap: balance; }
+.f169 .title { max-width: none; }
+.f45 .title { max-width: 18ch; }
+.f11 .title { max-width: 22ch; }
+.title em { font-style: normal; color: var(--red); }
+.lede { font-size: var(--lede); line-height: 1.32; font-weight: 400; color: var(--mist); margin: .62em 0 0; max-width: 34ch; text-wrap: pretty; }
+.f169 .lede { max-width: 44ch; }
+.f45 .lede, .f11 .lede { max-width: 42ch; }
+.f45 .head { padding-top: 34px; }
+.f45 .title { margin-top: .3em; }
+
+/* diagram, mounted on a chamfered mat with a dot grid and a figure label */
+.fig { grid-area: fig; margin: 0; min-height: 0; display: flex; align-items: center; justify-content: center; position: relative;
+  --c: 26px; background: #2C4250;
+  clip-path: polygon(var(--c) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, 0 100%, 0 var(--c));
+  padding: var(--fpt) var(--fpx) var(--fpb); }
+.fig::before { content: ''; position: absolute; inset: 2px; z-index: 0;
+  background-color: #10202A; background-image: radial-gradient(circle, #233846 1.6px, transparent 2px); background-size: 26px 26px; background-position: 12px 12px;
+  clip-path: polygon(calc(var(--c) - 1px) 0, 100% 0, 100% calc(100% - var(--c) + 1px), calc(100% - var(--c) + 1px) 100%, 0 100%, 0 calc(var(--c) - 1px)); }
+.fig::after { content: ''; position: absolute; right: 0; bottom: 0; width: var(--c); height: var(--c); z-index: 2;
+  background: linear-gradient(to top left, transparent calc(50% - 4px), var(--red) calc(50% - 4px), var(--red) calc(50% + 4px), transparent calc(50% + 4px)); }
+.fig svg { position: relative; z-index: 1; width: 100%; height: 100%; max-height: 100%; display: block; overflow: visible; }
+.fig figcaption { position: absolute; z-index: 2; top: calc(var(--fpt) * .32); left: calc(var(--c) + 14px); display: flex; gap: .7em; align-items: baseline;
+  font-size: calc(var(--src) * 1.02); color: var(--mist); font-weight: 500; white-space: nowrap; }
+.fig figcaption b { font-family: var(--display); font-weight: 600; color: var(--red); letter-spacing: .14em; text-transform: uppercase; font-size: .86em; }
+.f169 .fig { --fpt: 70px; --fpx: 30px; --fpb: 30px; margin: 34px -10px 14px 0; }
+.f45 .fig { --fpt: 50px; --fpx: 20px; --fpb: 14px; margin: 22px 0 16px; --c: 22px; }
+.f45 .notes li { padding: .4em 0 .44em; }
+.f11 .fig { --fpt: 52px; --fpx: 14px; --fpb: 14px; margin: 26px 0 8px; --c: 20px; }
+
+/* notes */
+.notes { grid-area: notes; list-style: none; margin: 0; padding: 0; align-self: end; }
+.notes li { display: grid; grid-template-columns: 2.5em 1fr; gap: .25em; align-items: start; font-size: var(--note); line-height: 1.3; font-weight: 500; color: var(--paper);
+  padding: .5em 0 .55em; border-top: 2px solid var(--slate); text-wrap: pretty; }
+.notes li .n { width: 1.72em; height: 1.98em; margin-top: -.12em; display: grid; place-items: center;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 46'%3E%3Cpolygon points='20,2 38,12.4 38,33.6 20,44 2,33.6 2,12.4' fill='none' stroke='%23FF5050' stroke-width='3'/%3E%3C/svg%3E") center / contain no-repeat; }
+.notes li .n span { font-family: var(--display); color: var(--paper); font-weight: 600; font-size: .56em; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.f169 .notes { padding-bottom: 8px; }
+.f11 .notes { align-self: center; }
+.f11 .notes li { padding: .42em 0 .48em; }
+
+/* sources */
+.src { grid-area: src; display: flex; align-items: center; justify-content: space-between; gap: 32px; font-size: var(--src); color: var(--grey); line-height: 1.35;
+  border-top: 2px solid var(--slate); padding-top: .8em; margin-top: .6em; }
+.src .lbl { color: var(--mist); font-weight: 700; margin-right: .45em; }
+.src .iso { flex: none; width: calc(var(--src) * 1.75); color: var(--red); }
+.src .iso svg { width: 100%; height: auto; display: block; }
+
+/* ---- motion (live pages only; exports render static) ---- */
+.plate.anim .ln { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: draw .9s cubic-bezier(.6,.1,.2,1) forwards; animation-delay: calc(var(--i) * 28ms + 200ms); }
+.plate.anim .ln[data-dash] { stroke-dasharray: none; opacity: 0; animation: fade .5s ease forwards; animation-delay: calc(var(--i) * 28ms + 200ms); }
+.plate.anim .pp { opacity: 0; animation: fade .55s ease forwards; animation-delay: calc(var(--i) * 28ms + 120ms); }
+.plate.anim .kicker { animation: rule 1s cubic-bezier(.6,.1,.2,1) both; }
+.plate.anim .title, .plate.anim .lede, .plate.anim .notes li { animation: rise .7s cubic-bezier(.2,.7,.2,1) both; }
+.plate.anim .lede { animation-delay: .12s; }
+.plate.anim .notes li:nth-child(1) { animation-delay: .9s; }
+.plate.anim .notes li:nth-child(2) { animation-delay: 1.05s; }
+.plate.anim .notes li:nth-child(3) { animation-delay: 1.2s; }
+.plate.anim .lattice { animation: drift 30s ease-in-out infinite alternate; }
+.plate.anim .fig::after { animation: fade .6s ease 1.4s both; opacity: 0; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes fade { to { opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes rule { from { border-bottom-color: transparent; } to { border-bottom-color: var(--red); } }
+@keyframes drift { from { transform: translate(0, 0); } to { transform: translate(-30px, 20px); } }
+@media (prefers-reduced-motion: reduce) { .plate.anim * { animation: none !important; opacity: 1 !important; stroke-dashoffset: 0 !important; } }

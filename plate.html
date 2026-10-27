@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Plate</title>
+<link rel="stylesheet" href="src/plate.css">
+<style>html,body{margin:0;background:#0a1014}</style>
+</head>
+<body>
+<!-- Editable source. Open plate.html?id=04&f=45 (f = 169 | 45 | 11, add &anim=1 for motion).
+     Edit copy in src/content.js, diagrams in src/diagrams.js, styling in src/plate.css. -->
+<script src="src/brand.js"></script>
+<script src="src/content.js"></script>
+<script src="src/diagrams.js"></script>
+<script src="src/plate.js"></script>
+<script>
+  const q = new URLSearchParams(location.search);
+  const p = PLATES.find((x) => x.id === (q.get('id') || '01'));
+  document.body.appendChild(renderPlate(p, q.get('f') || '169', { animate: q.get('anim') === '1' }));
+  document.fonts.ready.then(() => { document.body.dataset.ready = '1'; });
+</script>
+</body>
+</html>

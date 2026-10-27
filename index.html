@@ -1,0 +1,581 @@
+<title>Redbelly Network Explained</title>
+<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/brand/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/brand/apple-touch-icon.png">
+<link rel="stylesheet" href="src/plate.css">
+<style>
+/* Layout: a working desk. Left, the honeycomb index and notes; right, the live plate on a slate mat. Below, the full set and its sources. */
+:root {
+  --ink: #142530;      /* page ground (brand secondary) */
+  --deep: #0E1C25;     /* wells */
+  --slate: #283A46;    /* brand grey, mats and rules */
+  --edge: #34505F;
+  --red: #FF5050;      /* brand red, the one accent */
+  --paper: #ECEBEC;
+  --mist: #C9CDD0;
+  --grey: #848B91;
+  --display: 'Readex Pro', 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+  --body: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--ink); color: var(--paper); font-family: var(--body); font-size: 16px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ink); }
+/* hex rail: 11 isotype-shaped cells down the left edge, linked like consensus nodes; they fill in red as you read down the page */
+.rail { position: fixed; z-index: 5; left: max(18px, calc(env(safe-area-inset-left, 0px) + 10px)); top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 12px; pointer-events: none; }
+.rail::before { content: ''; position: absolute; left: 50%; top: 8px; bottom: 8px; width: 1px; background: var(--slate); transform: translateX(-50%); z-index: -1; }
+.rail::after { content: ''; position: absolute; left: 50%; top: 8px; width: 1px; height: var(--fill, 0%); max-height: calc(100% - 16px); background: var(--red); transform: translateX(-50%); z-index: -1; transition: height .3s ease; }
+.rail svg { width: 13px; height: 15px; display: block; }
+.rail polygon { fill: var(--ink); stroke: var(--edge); stroke-width: 2.4; transition: fill .3s ease, stroke .3s ease; }
+.rail .on polygon { fill: var(--red); stroke: var(--red); }
+.rail .cur polygon { fill: var(--ink); stroke: var(--red); stroke-width: 3; }
+.rail .cur { animation: railPing 2.4s ease-in-out infinite; }
+@keyframes railPing { 50% { transform: scale(1.25); } }
+@media (min-width: 760px) { body { padding-left: max(52px, env(safe-area-inset-left, 0px)); padding-right: max(52px, env(safe-area-inset-right, 0px)); } }
+@media (max-width: 759px) { .rail { display: none; } }
+@media (prefers-reduced-motion: reduce) { .rail .cur { animation: none; } .rail::after, .rail polygon { transition: none; } }
+.wrap { max-width: 1320px; margin: 0 auto; }
+a { color: var(--paper); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+
+/* top bar */
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 22px 18px; border-bottom: 1px solid var(--slate); flex-wrap: wrap; }
+.bar .wm svg { height: 18px; width: auto; display: block; }
+.bar .tally { font-size: 13px; color: var(--grey); letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+.bar .tally b { color: var(--paper); font-weight: 600; }
+
+/* desk */
+.desk { display: grid; grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 56px; padding-block: 44px 64px; align-items: start; }
+.intro h1 { font-family: var(--display); font-size: clamp(34px, 3.4vw, 50px); line-height: 1.04; margin-top: 12px !important; letter-spacing: -.03em; font-weight: 500; margin: 0; text-wrap: balance; }
+.intro h1 em { font-style: normal; color: var(--red); }
+.intro p.lead { color: var(--mist); font-size: 17px; margin: 18px 0 0; max-width: 36ch; }
+.label { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--grey); }
+
+/* honeycomb navigator: 11 cells, 4 / 4 / 3 */
+.comb { margin-top: 36px; }
+.comb .rows { display: flex; flex-direction: column; margin-top: 14px; }
+.comb .row { display: flex; gap: 6px; }
+.comb .row + .row { margin-top: -14px; }
+.comb .row:nth-child(2) { padding-left: 41px; }
+.cell { --s: 76px; width: var(--s); height: calc(var(--s) * 1.1547); border: 0; padding: 0; cursor: pointer; position: relative; background: none; color: var(--paper); font: inherit; }
+.cell svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cell polygon { fill: var(--deep); stroke: var(--slate); stroke-width: 2; transition: fill .25s, stroke .25s; }
+.cell span { position: relative; font-family: var(--display); font-weight: 600; font-size: 19px; font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.cell:hover polygon { stroke: var(--grey); }
+.cell[aria-current="true"] polygon { fill: var(--red); stroke: var(--red); }
+.cell[aria-current="true"] span { color: #fff; }
+.now { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--slate); }
+.now .k { color: var(--red); font-weight: 700; font-size: 14px; }
+.now h2 { margin: 6px 0 0; font-family: var(--display); font-size: 26px; line-height: 1.15; letter-spacing: -.01em; font-weight: 500; text-wrap: balance; }
+.now h2 em { font-style: normal; color: var(--red); }
+.now .step { display: flex; gap: 8px; margin-top: 16px; }
+.btn { appearance: none; border: 1px solid var(--edge); background: transparent; color: var(--paper); font: inherit; font-size: 14px; font-weight: 600; padding: 8px 14px; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+.btn:hover { border-color: var(--grey); }
+.btn.solid { background: var(--red); border-color: var(--red); color: #fff; }
+
+/* viewer */
+.viewer { min-width: 0; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.tabs .group { display: flex; gap: 4px; background: var(--deep); padding: 4px; border-radius: 6px; }
+.tab { appearance: none; border: 0; background: transparent; color: var(--grey); font: inherit; font-size: 14px; font-weight: 600; padding: 7px 14px; border-radius: 4px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.tab[aria-selected="true"] { background: var(--slate); color: var(--paper); }
+.tabs .dims { font-size: 13px; color: var(--grey); font-variant-numeric: tabular-nums; }
+.mat { background: var(--deep); border-radius: 8px; padding: clamp(10px, 2.4vw, 28px); display: flex; justify-content: center; }
+.stage { position: relative; width: 100%; overflow: hidden; border-radius: 2px; box-shadow: 0 30px 60px -30px rgba(0,0,0,.6); }
+.stage .plate { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.files { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; align-items: center; }
+.files .hint { font-size: 13px; color: var(--grey); }
+.srcbox { margin-top: 22px; border-top: 1px solid var(--slate); padding-top: 16px; }
+.srcbox ol { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 10px; }
+.srcbox li { display: grid; grid-template-columns: minmax(0, 1fr); font-size: 14px; color: var(--mist); }
+.srcbox li a { color: var(--grey); font-size: 13px; word-break: break-all; }
+
+/* live node field behind the desk: ring nodes like the isotype, linking as they drift */
+.desk { position: relative; }
+.desk > section { position: relative; z-index: 1; }
+.net { position: absolute; top: -20px; bottom: -20px; left: 50%; width: 100vw; transform: translateX(-50%); z-index: 0; pointer-events: none; display: block;
+  -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 34%, transparent 62%); mask-image: linear-gradient(90deg, #000 0%, #000 34%, transparent 62%); }
+
+/* tilt and readout */
+.mat { perspective: 1800px; position: relative; }
+.stage { transition: transform .5s cubic-bezier(.2,.7,.2,1); will-change: transform; }
+.readout { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--grey); font-variant-numeric: tabular-nums; }
+.readout b { color: var(--red); font-weight: 700; }
+.kbd { border: 1px solid var(--edge); border-radius: 3px; padding: 0 5px; font-size: 11px; color: var(--mist); letter-spacing: 0; }
+
+/* all three formats side by side */
+.compare { padding-block: 8px 48px; }
+.compare .row3 { display: grid; grid-template-columns: 1.78fr 1fr 1fr; gap: 18px; align-items: end; margin-top: 18px; }
+.compare figure { margin: 0; min-width: 0; }
+.compare .box { position: relative; overflow: hidden; border-radius: 3px; outline: 1px solid var(--slate); }
+.compare .box .plate { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.compare figcaption { margin-top: 8px; font-size: 13px; color: var(--grey); font-variant-numeric: tabular-nums; }
+@media (max-width: 700px) { .compare .row3 { grid-template-columns: minmax(0, 1fr); } }
+
+/* a short form, highlighted inside the live plate: a light marker from the brand's secondary palette
+   (#ECEBEC / #D9D9D9 ground, #142530 text, #FA423C ring) so it stands apart from the red accents */
+.plate { --hl-ground: #ECEBEC; --hl-ink: #142530; --hl-ring: #FA423C; }
+.plate mark.hl { background: var(--hl-ground); color: var(--hl-ink); border-radius: .16em; padding: 0 .14em; margin: 0 -.04em; box-decoration-break: clone; -webkit-box-decoration-break: clone;
+  box-shadow: 0 0 0 2px var(--hl-ring); animation: hlPulse 1.2s ease-out 1.6s 3 both; }
+.plate .title mark.hl, .plate em mark.hl { color: var(--hl-ink); }
+.plate rect.hlbox { fill: var(--hl-ground); stroke: var(--hl-ring); stroke-width: 3; opacity: 0; animation: hlIn .4s ease 1.2s forwards; }
+.plate text.hltext { fill: var(--hl-ink); opacity: 0; animation: hlIn .4s ease 1.2s forwards; }
+@keyframes hlPulse { 0% { box-shadow: 0 0 0 2px #FA423C, 0 0 0 2px rgba(250,66,60,.65); } 100% { box-shadow: 0 0 0 2px #FA423C, 0 0 0 .6em rgba(250,66,60,0); } }
+@keyframes hlIn { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .plate mark.hl, .plate rect.hlbox, .plate text.hltext { animation: none; opacity: 1; } }
+.hlchip { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: #ECEBEC; background: #142530; border: 1px solid #FA423C; border-radius: 999px; padding: 4px 5px 4px 12px; flex-wrap: wrap; }
+.hlchip .term { font-family: var(--display); font-weight: 600; background: #ECEBEC; color: #142530; border-radius: 3px; padding: 0 5px; }
+.hlchip .count { color: #D9D9D9; font-variant-numeric: tabular-nums; min-width: 2.6em; text-align: center; }
+.hlchip button { appearance: none; border: 1px solid #848B91; background: transparent; color: #ECEBEC; height: 24px; min-width: 24px; padding: 0 8px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 12px; line-height: 1; }
+.hlchip button:hover { border-color: #ECEBEC; }
+.hlchip button.zoom { min-width: 78px; }
+.hlchip button.x { border: 0; background: #848B91; color: #142530; width: 24px; padding: 0; }
+/* the camera: the plate pans and zooms inside the stage */
+.stage .plate.cam { transition: transform 1.1s cubic-bezier(.65,0,.25,1); }
+
+/* short forms, laid out like element tiles */
+.decode { padding-block: 48px 56px; border-top: 1px solid var(--slate); }
+.decode header { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+.decode h3 { margin: 0; font-family: var(--display); font-weight: 500; font-size: 30px; letter-spacing: -.01em; }
+.decode h3 em { font-style: normal; color: var(--red); }
+.decode .sub { margin: 6px 0 0; color: var(--mist); font-size: 15px; }
+.tiles { list-style: none; padding: 0; margin: 24px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 12px; }
+@media (min-width: 1100px) { .tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (max-width: 440px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .tile .sym { font-size: 28px; } .tile .in { padding: 12px 12px 14px; } }
+.tile { --c: 16px; position: relative; background: var(--slate); padding: 2px; min-width: 0;
+  clip-path: polygon(var(--c) 0, 100% 0, 100% calc(100% - var(--c)), calc(100% - var(--c)) 100%, 0 100%, 0 var(--c)); transition: background .25s, transform .25s; }
+.tile .in { height: 100%; display: grid; grid-template-rows: auto 1fr auto; gap: 6px; padding: 14px 14px 16px; background: var(--deep);
+  clip-path: polygon(calc(var(--c) - 1px) 0, 100% 0, 100% calc(100% - var(--c) + 1px), calc(100% - var(--c) + 1px) 100%, 0 100%, 0 calc(var(--c) - 1px)); }
+.tile .top { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+.tile .nos { display: flex; gap: 4px; }
+.tile { cursor: pointer; }
+.tile .no { appearance: none; border: 0; cursor: pointer; width: 30px; height: 34px; display: grid; place-items: center; padding: 0; color: var(--paper);
+  font-family: var(--display); font-weight: 600; font-size: 12px; font-variant-numeric: tabular-nums;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 46'%3E%3Cpolygon points='20,2 38,12.4 38,33.6 20,44 2,33.6 2,12.4' fill='none' stroke='%23FF5050' stroke-width='3'/%3E%3C/svg%3E") center / contain no-repeat; }
+.tile .no:hover { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 46'%3E%3Cpolygon points='20,2 38,12.4 38,33.6 20,44 2,33.6 2,12.4' fill='%23FF5050' stroke='%23FF5050' stroke-width='3'/%3E%3C/svg%3E"); color: #fff; }
+.tile .idx { font-size: 11px; color: var(--grey); font-variant-numeric: tabular-nums; letter-spacing: .08em; }
+.tile .sym { font-family: var(--display); font-weight: 500; font-size: 34px; line-height: 1; letter-spacing: -.01em; align-self: center; padding-top: 10px; transition: color .25s; overflow-wrap: anywhere; }
+.tile .full { font-size: 13px; line-height: 1.35; color: var(--mist); }
+.tile:hover { background: var(--red); transform: translateY(-3px); }
+.tile:hover .sym { color: var(--red); }
+@media (prefers-reduced-motion: reduce) { .tile, .tile .sym { transition: none; } .tile:hover { transform: none; } }
+
+/* the full set */
+.set { padding-block: 56px 40px; border-top: 1px solid var(--slate); }
+.set header { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.set h3 { margin: 0; font-family: var(--display); font-weight: 500; font-size: 30px; letter-spacing: -.01em; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 18px; margin-top: 24px; }
+.thumb { appearance: none; border: 0; padding: 0; background: none; cursor: pointer; text-align: left; color: var(--paper); font: inherit; }
+.thumb .box { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; border-radius: 4px; outline: 1px solid var(--slate); transition: outline-color .2s, transform .25s; }
+.thumb .box { transform-style: preserve-3d; }
+.thumb:hover .box { outline-color: var(--red); }
+.thumb .box .plate { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.thumb .cap { display: flex; gap: 10px; margin-top: 10px; font-size: 14px; color: var(--mist); }
+.thumb .cap b { color: var(--red); font-variant-numeric: tabular-nums; }
+
+/* notes on the set */
+.about { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 32px; padding-block: 40px 72px; border-top: 1px solid var(--slate); }
+.about h4 { margin: 0 0 8px; font-family: var(--display); font-weight: 500; font-size: 16px; }
+.about p { margin: 0; color: var(--mist); font-size: 14px; max-width: 46ch; }
+
+@media (max-width: 920px) {
+  .desk { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 28px 40px; }
+  .about { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 440px) {
+  .cell { --s: 60px; }
+  .comb .row:nth-child(2) { padding-left: 33px; }
+  .comb .row + .row { margin-top: -11px; }
+  .cell span { font-size: 16px; }
+}
+</style>
+
+<nav class="rail" id="rail" aria-hidden="true"></nav>
+<div class="wrap">
+  <header class="bar">
+    <span class="wm" id="wm" aria-label="Redbelly"></span>
+    <span class="tally"><b>11</b> ideas &nbsp;·&nbsp; <b>3</b> formats &nbsp;·&nbsp; <b>33</b> images</span>
+  </header>
+
+  <main class="desk">
+    <canvas class="net" id="net" aria-hidden="true"></canvas>
+    <section class="intro">
+      <h1>Redbelly <em>made simple</em></h1>
+      <p class="lead">New to Redbelly? Start here. Each image explains one core idea, from DBFT consensus to Project Acacia, in under a minute and in plain language.</p>
+
+      <nav class="comb" aria-label="Choose a topic">
+        <div class="label">Pick a topic</div>
+        <div class="rows" id="comb"></div>
+      </nav>
+
+      <div class="now" aria-live="polite">
+        <div class="k" id="nowK"></div>
+        <h2 id="nowT"></h2>
+        <div class="step">
+          <button class="btn" id="prev" type="button">← Previous</button>
+          <button class="btn" id="next" type="button">Next →</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="viewer" aria-label="Infographic">
+      <div class="tabs">
+        <div class="group" role="tablist" aria-label="Format" id="fmt"></div>
+        <span class="dims" id="dims"></span>
+      </div>
+      <div class="mat" id="mat"><div class="stage" id="stage"></div></div>
+      <div class="readout"><span id="figline"></span><span><span class="kbd">←</span> <span class="kbd">→</span> to browse</span></div>
+      <div class="files">
+        <span class="hlchip" id="hlchip" hidden></span>
+        <a class="btn solid" id="png" href="#" target="_blank" rel="noopener">Open full-size PNG</a>
+        <button class="btn" id="replay" type="button">Replay</button>
+        <button class="btn" id="cmp" type="button" aria-expanded="false" aria-controls="compare">Compare 3 formats</button>
+        <span class="hint">Opens in a new tab, ready to save.</span>
+      </div>
+      <div class="srcbox">
+        <div class="label">Where these facts come from</div>
+        <ol id="src"></ol>
+      </div>
+    </section>
+  </main>
+
+  <section class="compare" id="compare" aria-label="All three formats" hidden>
+    <div class="label">Same plate, three formats</div>
+    <div class="row3" id="row3"></div>
+  </section>
+
+  <section class="decode" aria-labelledby="decodeH">
+    <header>
+      <div>
+        <h3 id="decodeH">Every short form <em>decoded</em></h3>
+        <p class="sub">All 11 abbreviations used in the images. Tap a tile or a number to see the word highlighted in that image.</p>
+      </div>
+    </header>
+    <ul class="tiles" id="tiles"></ul>
+  </section>
+
+  <section class="set" aria-label="All eleven">
+    <header>
+      <h3>The full set</h3>
+      <span class="label" id="setLabel">Square 1:1</span>
+    </header>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="about">
+    <div>
+      <h4>One idea per image</h4>
+      <p>Each plate carries a single concept: a headline, one sentence of context, one diagram and three short facts. Text is sized to be read on a phone without zooming.</p>
+    </div>
+    <div>
+      <h4>Facts from the supplied resources</h4>
+      <p>Every line traces to Redbelly’s website, whitepaper, research hub and docs, Tokeniser, the Project Acacia deep dive, the TASK-23 changelog and the DAO voting platform. Governance reflects the voting platform, not Constitution v1.2 or Snapshot.</p>
+    </div>
+    <div>
+      <h4>Brand kit only</h4>
+      <p>Logo and isotype are taken as vectors from the Redbelly brand guidelines. Headers use Readex Pro Medium, as the Redbelly brand page specifies; running text uses Be Vietnam Pro from the DAO brand tokens. Both are SIL Open Font License. Colours come from the guideline palette. Diagrams are drawn by hand for this series.</p>
+    </div>
+  </section>
+</div>
+
+<script src="src/brand.js"></script>
+<script src="src/content.js"></script>
+<script src="src/sources.js"></script>
+<script src="src/glossary.js"></script>
+<script src="src/diagrams.js"></script>
+<script src="src/plate.js"></script>
+<script>
+(function () {
+  const TAGS = { '169': '16x9', '45': '4x5', '11': '1x1' };
+  const ORDER = ['169', '45', '11'];
+  let cur = '01', fmt = '45';
+  try { fmt = localStorage.getItem('rbp-fmt') || fmt; } catch (e) {}
+  if (!FORMATS[fmt]) fmt = '45';
+  const $ = (id) => document.getElementById(id);
+  const strip = (s) => s.replace(/\*/g, '');
+  const mark = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  $('wm').innerHTML = BRAND.wordmark;
+
+  // honeycomb 4 / 4 / 3
+  const hexSvg = '<svg viewBox="0 0 100 115.47" aria-hidden="true"><polygon points="50,2 98,29.7 98,85.8 50,113.5 2,85.8 2,29.7"/></svg>';
+  [[0, 4], [4, 8], [8, 11]].forEach(([a, b]) => {
+    const row = document.createElement('div'); row.className = 'row';
+    PLATES.slice(a, b).forEach((p) => {
+      const c = document.createElement('button');
+      c.className = 'cell'; c.type = 'button'; c.dataset.id = p.id;
+      c.title = strip(p.title); c.setAttribute('aria-label', p.id + ': ' + p.kicker);
+      c.innerHTML = hexSvg + '<span>' + p.id + '</span>';
+      c.addEventListener('click', () => go(p.id));
+      row.appendChild(c);
+    });
+    $('comb').appendChild(row);
+  });
+
+  ORDER.forEach((f) => {
+    const t = document.createElement('button');
+    t.className = 'tab'; t.type = 'button'; t.setAttribute('role', 'tab'); t.dataset.f = f;
+    t.textContent = FORMATS[f].label.replace('Landscape ', '').replace('Portrait ', '').replace('Square ', '');
+    t.title = FORMATS[f].label;
+    t.addEventListener('click', () => { fmt = f; try { localStorage.setItem('rbp-fmt', f); } catch (e) {} draw(true); });
+    $('fmt').appendChild(t);
+  });
+
+  function fit(box, plate, f) {
+    const s = box.clientWidth / FORMATS[f].w;
+    plate.style.transform = 'scale(' + s + ')';
+    box.style.height = FORMATS[f].h * s + 'px';
+  }
+
+  function draw(animate) {
+    const p = PLATES.find((x) => x.id === cur);
+    const stage = $('stage');
+    stage.style.maxWidth = fmt === '169' ? '100%' : (fmt === '45' ? '640px' : '720px');
+    stage.innerHTML = '';
+    const el = renderPlate(p, fmt, { animate });
+    stage.appendChild(el);
+    fit(stage, el, fmt);
+    document.querySelectorAll('.cell').forEach((c) => c.setAttribute('aria-current', c.dataset.id === cur));
+    document.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', t.dataset.f === fmt));
+    $('dims').textContent = FORMATS[fmt].label + ' · ' + FORMATS[fmt].w * 2 + '×' + FORMATS[fmt].h * 2 + ' px';
+    $('nowK').textContent = p.id + ' / 11 · ' + p.kicker;
+    $('nowT').innerHTML = mark(p.title);
+    $('figline').innerHTML = '<b>Fig. ' + p.id + '</b> &nbsp;' + (p.fig || '');
+    drawCompare();
+    $('png').href = 'png/' + p.id + '-' + p.slug + '_' + TAGS[fmt] + '.png';
+    $('src').innerHTML = (SOURCES[p.id] || []).map(([what, url]) =>
+      '<li><span>' + what + '</span><a href="' + url + '" target="_blank" rel="noopener">' + url.replace('https://', '') + '</a></li>').join('');
+    applyHighlight(el);
+  }
+
+  // highlight a short form inside the live plate (heading, notes and diagram labels), then fly the camera to it
+  let hlTerm = null, cam = { list: [], i: 0, on: false }, camTimer = 0;
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function applyHighlight(plate) {
+    const chip = $('hlchip');
+    clearTimeout(camTimer); cam = { list: [], i: 0, on: false };
+    if (!hlTerm) { chip.hidden = true; return; }
+    const src = '\\b' + hlTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b';
+    const test = new RegExp(src, 'i');
+    // text in the HTML parts of the plate
+    const walker = document.createTreeWalker(plate, NodeFilter.SHOW_TEXT, { acceptNode: (n) =>
+      n.parentElement.closest('svg, .src, .meta, .side, figcaption') ? NodeFilter.FILTER_REJECT : (test.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+    const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((n) => {
+      const frag = document.createDocumentFragment(), re = new RegExp(src, 'gi'); let last = 0, m;
+      while ((m = re.exec(n.nodeValue))) {
+        frag.appendChild(document.createTextNode(n.nodeValue.slice(last, m.index)));
+        const mk = document.createElement('mark'); mk.className = 'hl'; mk.textContent = m[0]; frag.appendChild(mk);
+        last = m.index + m[0].length;
+      }
+      frag.appendChild(document.createTextNode(n.nodeValue.slice(last)));
+      n.parentNode.replaceChild(frag, n);
+    });
+    requestAnimationFrame(() => {
+      // labels inside the diagram: a light marker box, with the matched letters redrawn in ink on top
+      plate.querySelectorAll('.fig svg text').forEach((t) => {
+        const str = t.textContent, re = new RegExp(src, 'gi'); let m;
+        while ((m = re.exec(str))) {
+          try {
+            const a = t.getStartPositionOfChar(m.index), e = t.getExtentOfChar(m.index), w = t.getSubStringLength(m.index, m[0].length);
+            const r = document.createElementNS(SVGNS, 'rect');
+            r.setAttribute('class', 'hlbox'); r.setAttribute('rx', 5);
+            r.setAttribute('x', a.x - 7); r.setAttribute('y', e.y - 5); r.setAttribute('width', w + 14); r.setAttribute('height', e.height + 10);
+            // which line (tspan) holds the match, for its baseline
+            let y = a.y, acc = 0;
+            for (const sp of t.querySelectorAll('tspan')) { const L = sp.textContent.length; if (m.index < acc + L) { y = +sp.getAttribute('y'); break; } acc += L; }
+            const ov = document.createElementNS(SVGNS, 'text');
+            ['font-family', 'font-size', 'font-weight', 'letter-spacing', 'dominant-baseline'].forEach((k) => t.getAttribute(k) && ov.setAttribute(k, t.getAttribute(k)));
+            ov.setAttribute('class', 'hltext'); ov.setAttribute('text-anchor', 'start'); ov.setAttribute('x', a.x); ov.setAttribute('y', y);
+            ov.textContent = m[0];
+            t.parentNode.insertBefore(r, t); t.parentNode.insertBefore(ov, t.nextSibling);
+          } catch (err) {}
+        }
+      });
+      // every mention, measured once in the plate's own pixels (so later clicks never re-measure a moving plate)
+      const stage = $('stage'), tilt = stage.style.transform; stage.style.transform = '';
+      const W = FORMATS[fmt].w, pr = plate.getBoundingClientRect(), k = pr.width / W;
+      const boxOf = (el) => {
+        if (!(el instanceof SVGElement)) {
+          // HTML: walk the offset chain, which ignores the entrance animations' transforms
+          let x = 0, y = 0, n = el;
+          while (n && n !== plate) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+          return { x, y, w: el.offsetWidth, h: el.offsetHeight };
+        }
+        const r = el.getBoundingClientRect();
+        return { x: (r.left - pr.left) / k, y: (r.top - pr.top) / k, w: r.width / k, h: r.height / k };
+      };
+      cam.list = [...plate.querySelectorAll('mark.hl, rect.hlbox')].map(boxOf).sort((a, b) => (a.y - b.y) || (a.x - b.x));
+      stage.style.transform = tilt;
+      buildChip();
+      if (cam.list.length) camTimer = setTimeout(() => focusMention(0, true), 900);
+    });
+  }
+  // the chip is built once per highlight; clicks only update its text, so buttons never move under the cursor
+  function buildChip() {
+    const chip = $('hlchip'), n = cam.list.length;
+    chip.hidden = !n; if (!n) return;
+    chip.innerHTML = '<span class="term">' + hlTerm + '</span><span>in image ' + cur + '</span>' +
+      (n > 1 ? '<button type="button" data-a="prev" aria-label="Previous mention">‹</button><span class="count" id="hlcount"></span><button type="button" data-a="next" aria-label="Next mention">›</button>' : '') +
+      '<button type="button" class="zoom" data-a="cam" id="hlzoom" aria-pressed="false"></button>' +
+      '<button type="button" class="x" data-a="clear" aria-label="Clear highlight">✕</button>';
+    updateChip();
+  }
+  function updateChip() {
+    const c = $('hlcount'), z = $('hlzoom');
+    if (c) c.textContent = (cam.i + 1) + ' / ' + cam.list.length;
+    if (z) { z.textContent = cam.on ? 'Zoom out' : 'Zoom in'; z.setAttribute('aria-pressed', String(cam.on)); }
+  }
+  $('hlchip').addEventListener('click', (e) => {
+    const a = e.target.closest('button'); if (!a) return;
+    const n = cam.list.length; clearTimeout(camTimer);
+    if (a.dataset.a === 'next') focusMention((cam.i + 1) % n, true);
+    if (a.dataset.a === 'prev') focusMention((cam.i + n - 1) % n, true);
+    if (a.dataset.a === 'cam') cam.on ? camReset(true) : focusMention(cam.i, true);
+    if (a.dataset.a === 'clear') { hlTerm = null; $('hlchip').hidden = true; camReset(true); setTimeout(() => draw(false), 600); }
+  });
+  // pan and zoom the plate so the mention sits in the middle of the stage
+  function focusMention(i, smooth) {
+    const stage = $('stage'), plate = stage.firstChild, b = cam.list[i]; if (!plate || !b) return;
+    stage.style.transform = '';
+    const W = FORMATS[fmt].w, H = FORMATS[fmt].h, sw = stage.clientWidth, sh = stage.clientHeight, s0 = sw / W;
+    const z = Math.max(1.7, Math.min(2.8, (sw * 0.34) / (b.w * s0))), K = s0 * z;
+    let tx = sw / 2 - (b.x + b.w / 2) * K, ty = sh / 2 - (b.y + b.h / 2) * K;
+    tx = Math.min(0, Math.max(sw - W * K, tx)); ty = Math.min(0, Math.max(sh - H * K, ty));
+    plate.classList.toggle('cam', !!smooth);
+    plate.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px) scale(' + K.toFixed(4) + ')';
+    cam.i = i; cam.on = true; updateChip();
+  }
+  function camReset(smooth) {
+    const stage = $('stage'), plate = stage.firstChild; if (!plate) return;
+    plate.classList.toggle('cam', !!smooth);
+    plate.style.transform = 'scale(' + stage.clientWidth / FORMATS[fmt].w + ')';
+    cam.on = false; updateChip();
+  }
+
+  // compare view
+  function drawCompare() {
+    const box = $('compare'); if (box.hidden) return;
+    const p = PLATES.find((x) => x.id === cur);
+    $('row3').innerHTML = '';
+    ORDER.forEach((f) => {
+      const fig = document.createElement('figure');
+      fig.innerHTML = '<div class="box"></div><figcaption>' + FORMATS[f].label + ' · ' + FORMATS[f].w * 2 + '×' + FORMATS[f].h * 2 + '</figcaption>';
+      const el = renderPlate(p, f, { animate: true });
+      fig.querySelector('.box').appendChild(el);
+      $('row3').appendChild(fig);
+      fit(fig.querySelector('.box'), el, f);
+    });
+  }
+  $('cmp').addEventListener('click', () => {
+    const box = $('compare'); box.hidden = !box.hidden;
+    $('cmp').setAttribute('aria-expanded', String(!box.hidden));
+    $('cmp').textContent = box.hidden ? 'Compare 3 formats' : 'Hide comparison';
+    drawCompare();
+    if (!box.hidden) box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  // gentle tilt on the live plate
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  $('mat').addEventListener('pointermove', (e) => {
+    if (reduce || e.pointerType === 'touch' || cam.on) return;  // no tilt while the camera is zoomed in
+    const r = $('mat').getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+    $('stage').style.transform = 'rotateY(' + (x * 5).toFixed(2) + 'deg) rotateX(' + (-y * 5).toFixed(2) + 'deg)';
+  });
+  $('mat').addEventListener('pointerleave', () => { $('stage').style.transform = ''; });
+
+  // keyboard browsing
+  document.addEventListener('keydown', (e) => {
+    if (e.target.closest && e.target.closest('input,textarea')) return;
+    if (e.key === 'ArrowRight') $('next').click();
+    if (e.key === 'ArrowLeft') $('prev').click();
+  });
+
+  // node field
+  (function net() {
+    const cv = $('net'), ctx = cv.getContext('2d');
+    let W = 0, H = 0, dpr = 1, nodes = [], mx = -999, my = -999;
+    function size() {
+      const r = cv.getBoundingClientRect(); dpr = Math.min(2, window.devicePixelRatio || 1);
+      W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const n = Math.round(Math.min(70, W * H / 16000));
+      nodes = Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .22, vy: (Math.random() - .5) * .22, r: 3 + Math.random() * 3 }));
+    }
+    function frame() {
+      ctx.clearRect(0, 0, W, H);
+      for (const a of nodes) { a.x += a.vx; a.y += a.vy; if (a.x < 0 || a.x > W) a.vx *= -1; if (a.y < 0 || a.y > H) a.vy *= -1; }
+      for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+        if (d < 150) { ctx.strokeStyle = 'rgba(132,139,145,' + (0.22 * (1 - d / 150)).toFixed(3) + ')'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+      }
+      for (const a of nodes) {
+        const near = Math.hypot(a.x - mx, a.y - my) < 170;
+        if (near) { ctx.strokeStyle = 'rgba(255,80,80,.55)'; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(mx, my); ctx.stroke(); }
+        ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2);
+        ctx.fillStyle = '#142530'; ctx.fill(); ctx.lineWidth = 1.6; ctx.strokeStyle = near ? '#FF5050' : 'rgba(236,235,236,.32)'; ctx.stroke();
+      }
+      if (!reduce) requestAnimationFrame(frame);
+    }
+    window.addEventListener('pointermove', (e) => { const r = cv.getBoundingClientRect(); mx = e.clientX - r.left; my = e.clientY - r.top; });
+    window.addEventListener('resize', size);
+    size(); frame();
+  })();
+
+  function go(id, term) {
+    hlTerm = term || null;
+    cur = id;
+    if (location.hash !== '#p' + id) history.replaceState(null, '', '#p' + id);
+    draw(true);
+  }
+  $('prev').addEventListener('click', () => go(String((+cur + 9) % 11 + 1).padStart(2, '0')));
+  $('next').addEventListener('click', () => go(String(+cur % 11 + 1).padStart(2, '0')));
+  $('replay').addEventListener('click', () => draw(true));
+
+  // full set, square format, static
+  const grid = $('grid');
+  PLATES.forEach((p) => {
+    const b = document.createElement('button');
+    b.className = 'thumb'; b.type = 'button';
+    b.innerHTML = '<div class="box"></div><div class="cap"><b>' + p.id + '</b><span>' + p.kicker + '</span></div>';
+    const el = renderPlate(p, '11');
+    b.querySelector('.box').appendChild(el);
+    b.addEventListener('click', () => { go(p.id); window.scrollTo({ top: 0, behavior: 'smooth' }); });
+    grid.appendChild(b);
+  });
+  function fitThumbs() { grid.querySelectorAll('.box').forEach((box) => fit(box, box.firstChild, '11')); }
+
+  function fromHash() { const m = /^#p(\d\d)$/.exec(location.hash); if (m && PLATES.some((p) => p.id === m[1])) cur = m[1]; }
+  // hex rail: reading progress down the page
+  (function rail() {
+    const r = $('rail'), hex = '<svg viewBox="0 0 20 23"><polygon points="10,1.5 18.5,6.4 18.5,16.6 10,21.5 1.5,16.6 1.5,6.4"/></svg>';
+    r.innerHTML = Array.from({ length: 11 }, () => '<span>' + hex + '</span>').join('');
+    const cells = [...r.children];
+    function update() {
+      const max = document.documentElement.scrollHeight - innerHeight, p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
+      const n = Math.round(p * 10);
+      cells.forEach((c, i) => { c.classList.toggle('on', i < n); c.classList.toggle('cur', i === n); });
+      r.style.setProperty('--fill', (n / 10 * 100).toFixed(1) + '%');
+    }
+    addEventListener('scroll', update, { passive: true }); addEventListener('resize', update); update();
+  })();
+
+  // short forms
+  $('tiles').innerHTML = GLOSSARY.map(([sym, full, ids], k) =>
+    '<li class="tile"><div class="in"><div class="top"><span class="nos">' +
+    ids.map((id) => '<button class="no" type="button" data-id="' + id + '" data-term="' + sym + '" aria-label="Open image ' + id + ' and highlight ' + sym + '">' + id + '</button>').join('') +
+    '</span></div><div class="sym">' + sym + '</div><div class="full">' + full + '</div></div></li>').join('');
+  $('tiles').addEventListener('click', (e) => {
+    const tile = e.target.closest('.tile'); if (!tile) return;
+    const b = e.target.closest('.no') || tile.querySelector('.no');
+    go(b.dataset.id, b.dataset.term); document.querySelector('.viewer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  fromHash();
+  window.addEventListener('hashchange', () => { fromHash(); draw(true); });
+  window.addEventListener('resize', () => { const el = $('stage').firstChild; if (el) { fit($('stage'), el, fmt); if (cam.on) focusMention(cam.i, false); } fitThumbs(); });
+  draw(true); fitThumbs();
+  document.fonts && document.fonts.ready.then(() => { fitThumbs(); });
+})();
+</script>
