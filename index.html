@@ -35,20 +35,7 @@
 body { background: var(--ink); color: var(--paper); font-family: var(--body); font-size: 16px; line-height: 1.55;
   padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--ink); }
-/* hex rail: 11 isotype-shaped cells down the left edge, linked like consensus nodes; they fill in red as you read down the page */
-.rail { position: fixed; z-index: 5; left: max(18px, calc(env(safe-area-inset-left, 0px) + 10px)); top: 50%; transform: translateY(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 12px; pointer-events: none; }
-.rail::before { content: ''; position: absolute; left: 50%; top: 8px; bottom: 8px; width: 1px; background: var(--slate); transform: translateX(-50%); z-index: -1; }
-.rail::after { content: ''; position: absolute; left: 50%; top: 8px; width: 1px; height: var(--fill, 0%); max-height: calc(100% - 16px); background: var(--red); transform: translateX(-50%); z-index: -1; transition: height .3s ease; }
-.rail svg { width: 13px; height: 15px; display: block; }
-.rail polygon { fill: var(--ink); stroke: var(--edge); stroke-width: 2.4; transition: fill .3s ease, stroke .3s ease; }
-.rail .on polygon { fill: var(--red); stroke: var(--red); }
-.rail .cur polygon { fill: var(--ink); stroke: var(--red); stroke-width: 3; }
-.rail .cur { animation: railPing 2.4s ease-in-out infinite; }
-@keyframes railPing { 50% { transform: scale(1.25); } }
 @media (min-width: 760px) { body { padding-left: max(52px, env(safe-area-inset-left, 0px)); padding-right: max(52px, env(safe-area-inset-right, 0px)); } }
-@media (max-width: 759px) { .rail { display: none; } }
-@media (prefers-reduced-motion: reduce) { .rail .cur { animation: none; } .rail::after, .rail polygon { transition: none; } }
 .wrap { max-width: 1320px; margin: 0 auto; }
 a { color: var(--paper); }
 a:focus-visible, button:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
@@ -207,7 +194,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--red); outline-o
 </head>
 <body>
 
-<nav class="rail" id="rail" aria-hidden="true"></nav>
 <div class="wrap">
   <header class="bar">
     <span class="wm" id="wm" aria-label="Redbelly"></span>
@@ -562,20 +548,6 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--red); outline-o
   function fitThumbs() { grid.querySelectorAll('.box').forEach((box) => fit(box, box.firstChild, '11')); }
 
   function fromHash() { const m = /^#p(\d\d)$/.exec(location.hash); if (m && PLATES.some((p) => p.id === m[1])) cur = m[1]; }
-  // hex rail: reading progress down the page
-  (function rail() {
-    const r = $('rail'), hex = '<svg viewBox="0 0 20 23"><polygon points="10,1.5 18.5,6.4 18.5,16.6 10,21.5 1.5,16.6 1.5,6.4"/></svg>';
-    r.innerHTML = Array.from({ length: 11 }, () => '<span>' + hex + '</span>').join('');
-    const cells = [...r.children];
-    function update() {
-      const max = document.documentElement.scrollHeight - innerHeight, p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
-      const n = Math.round(p * 10);
-      cells.forEach((c, i) => { c.classList.toggle('on', i < n); c.classList.toggle('cur', i === n); });
-      r.style.setProperty('--fill', (n / 10 * 100).toFixed(1) + '%');
-    }
-    addEventListener('scroll', update, { passive: true }); addEventListener('resize', update); update();
-  })();
-
   // short forms
   $('tiles').innerHTML = GLOSSARY.map(([sym, full, ids], k) =>
     '<li class="tile"><div class="in"><div class="top"><span class="nos">' +
