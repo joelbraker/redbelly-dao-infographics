@@ -24,6 +24,7 @@ from DBFT consensus to Project Acacia, in plain language.</p>
   <a href="#the-series">The series</a> ·
   <a href="#formats">Formats</a> ·
   <a href="#view-the-showcase">Showcase</a> ·
+  <a href="#phone-readability">Phone readability</a> ·
   <a href="#edit-and-re-export">Edit and re-export</a> ·
   <a href="#verification">Verification</a> ·
   <a href="SOURCES.md">Sources</a>
@@ -45,11 +46,11 @@ Each image explains one core idea in under a minute. The series comes as 33 read
   <tr>
     <td width="33%" valign="top">
       <b>One idea per image</b><br><br>
-      Each plate carries a single concept: a headline, one sentence of context, one diagram and three short facts. Text is sized to be read on a phone without zooming.
+      Each plate carries a single concept: a headline, one sentence of context, one diagram and three short facts. Every word, diagram labels included, is measured to stay readable on a phone without zooming.
     </td>
     <td width="33%" valign="top">
       <b>Every fact sourced</b><br><br>
-      Every line traces to Redbelly's website, whitepaper, research hub and docs, Tokeniser, the Project Acacia deep dive, the TASK-23 changelog and the DAO voting platform.
+      Every line has a verbatim quote from Redbelly's website, whitepaper, research hub and docs, Tokeniser, the Project Acacia deep dive, the TASK-23 changelog or the DAO voting platform, re-checked against the live pages.
     </td>
     <td width="33%" valign="top">
       <b>Brand kit only</b><br><br>
@@ -154,6 +155,23 @@ Every plate is laid out three times, not cropped, so each format reads well on i
 | Portrait 4:5 | 2160 × 2700 | 1080 × 1350 | `*_4x5.png` | Instagram and LinkedIn feeds |
 | Square 1:1 | 2160 × 2160 | 1080 × 1080 | `*_1x1.png` | Square feeds and thumbnails |
 
+## Phone readability
+
+Every word on every image, diagram labels and sources included, has a minimum size. [`check.js`](check.js) renders all 33 images and measures each piece of text, so the numbers below are measured, not estimated.
+
+| Format | Smallest text allowed | Lede and notes | Smallest text on a 390 px wide phone, image at full width |
+|---|---|---|---|
+| Portrait 4:5 | 30 px at 1080 wide | 34 px | 10.8 px (lede and notes 12.3 px) |
+| Square 1:1 | 30 px at 1080 wide | 34 px | 10.8 px (lede and notes 12.3 px) |
+| Landscape 16:9 | 42 px at 1920 wide | 48 px | 8.5 px upright, 15.2 px with the phone held sideways |
+
+The checker also fails any image where text runs outside the image, the diagram or the box it sits in, or where a word has a WCAG contrast ratio below 4.5:1. Results for every image are in [`reports/readability.md`](reports/readability.md).
+
+```bash
+node check.js                                   # all 33 images, exits 1 on any failure
+node check.js --report=reports/readability.md   # also writes the report
+```
+
 ## View the showcase
 
 The showcase is live at **[redbelly-dao-infographics.vercel.app](https://redbelly-dao-infographics.vercel.app/)**. To run it locally, download or clone this repository and serve the folder:
@@ -185,6 +203,7 @@ All copy and diagrams live in plain JavaScript files, so you can edit them witho
 | To change | Edit |
 |---|---|
 | Titles, ledes, notes and source lines | [`src/content.js`](src/content.js). Wrap a word in `*asterisks*` to set it in brand red. |
+| The quote behind every lede and note | [`src/facts.js`](src/facts.js) |
 | The 11 diagrams (hand-drawn SVG) | [`src/diagrams.js`](src/diagrams.js) |
 | Layout, brand colours and motion | [`src/plate.css`](src/plate.css) |
 | How a plate is assembled | [`src/plate.js`](src/plate.js) |
@@ -201,7 +220,7 @@ node export.js --scale=2 --out=png         # all 33 images
 node export.js 04 10 --scale=2 --out=png   # only plates 04 and 10
 ```
 
-The exporter prints each file it writes and flags `OVERFLOW` if any text runs outside its frame.
+The exporter prints each file it writes and flags `OVERFLOW` if any text runs outside its frame. After editing, run `node check.js` and `node verify.js` (see [Verification](#verification)): they fail if new copy is too small for a phone, runs out of its box, or is no longer backed by a quote.
 
 ## Verification
 
@@ -212,10 +231,23 @@ Every claim in this repository can be checked:
 | All 11 topics in all 3 formats | List `png/`: 11 plates × 3 formats | 33 files, none missing |
 | Image sizes | Open any PNG, or see [Formats](#formats) | Every file is 2× the minimum size |
 | PNGs match the source | `node export.js --scale=2 --out=check`, then compare `check/` with `png/` | The same 33 images are re-rendered |
-| No text cut off | The exporter flags `OVERFLOW` on any frame | No flags on any of the 33 frames |
-| Facts | Every line on every plate is mapped to its source URL in [`SOURCES.md`](SOURCES.md) | All sources checked on 27 October 2026 |
-| Governance | Plate 10 follows the DAO voting platform and the TASK-23 changelog | No Constitution v1.2 or Snapshot rules used |
+| No text cut off | `node check.js` checks every word against the image, the diagram and its box | All 33 images pass |
+| Readable on a phone | `node check.js` measures every word, diagram labels included, against the size floors in [Phone readability](#phone-readability) | All 33 images pass, see [`reports/readability.md`](reports/readability.md) |
+| Contrast | `node check.js` computes the WCAG contrast of every word against what is behind it | Lowest ratio 4.87:1, above the 4.5:1 minimum |
+| Facts covered | `node verify.js` checks that every lede and note has a source and a verbatim quote in [`src/facts.js`](src/facts.js), and that every number on a plate (copy and diagram labels) appears in one of its quotes | 74 quotes across 11 plates, every lede and note covered |
+| Facts still true | `node verify.js --online` opens every source page and searches for each quote | All quotes found on their live pages on 30 October 2026, see [`reports/facts.md`](reports/facts.md) |
+| Governance | `node verify.js` fails if plate 10 describes Snapshot voting, Constitution v1.2 or the whitelist as current rules | Plate 10 follows the DAO voting platform and the TASK-23 changelog |
+| Wording | `node verify.js` fails on price talk, return promises, investment advice, handles or "made by" lines | None found |
 | Licences | Fonts are SIL OFL 1.1, the logo comes from the Redbelly brand kit, and the diagrams and icons are original | See [Licences](#licences) |
+
+Both checkers need only Node.js and Playwright (the same setup as the exporter). `verify.js --online` also uses `pdftotext` to read the Polygraph paper, if it is installed.
+
+## What changed in this revision
+
+- **Plate 09, Polygraph.** The plate no longer says Polygraph proves any cheating node. It now gives the guarantee as the Polygraph paper and the whitepaper state it: when honest nodes disagree, Polygraph builds proof, and that proof names at least a third of the nodes as responsible.
+- **Phone readability.** All type is larger, and nothing on an image is smaller than the floors in [Phone readability](#phone-readability). The diagrams were redrawn with fewer, larger labels. The small vertical side label and the figure captions were removed, and the notes were shortened to fit the larger type.
+- **Contrast.** Red text now sits only on dark grounds, and the credential header uses dark text on red, so every word passes 4.5:1.
+- **Verification.** [`check.js`](check.js) measures every word on all 33 images, and [`verify.js`](verify.js) ties every lede and note to a verbatim quote and re-checks each quote on its live page. Both write reports to [`reports/`](reports).
 
 ## Project structure
 
@@ -224,10 +256,14 @@ redbelly-dao-infographics/
 ├── index.html        Showcase site
 ├── plate.html        Renders one plate (?id=&f=&anim=)
 ├── export.js         Playwright exporter for the PNGs
+├── check.js          Phone readability check: size, fit and contrast of every word
+├── verify.js         Fact check: coverage, numbers, glossary, wording, live quotes
 ├── SOURCES.md        Every fact mapped to its source
+├── reports/          Latest readability and fact verification reports
 ├── png/              The 33 final images
 ├── src/
 │   ├── content.js    All copy
+│   ├── facts.js      The verbatim quote behind every lede and note
 │   ├── diagrams.js   The 11 SVG diagrams
 │   ├── plate.css     Layout for the three formats, colours and motion
 │   ├── plate.js      Builds a plate from content and diagram
@@ -241,27 +277,24 @@ redbelly-dao-infographics/
 
 ## Sources
 
-Every fact on the plates is mapped to the resource it comes from in [`SOURCES.md`](SOURCES.md), with all sources accessed on 27 October 2026.
+Every fact on the plates is mapped to the resource it comes from in [`SOURCES.md`](SOURCES.md), with the verbatim quotes in [`src/facts.js`](src/facts.js). All quotes were found again on their live pages on 30 October 2026.
 
 > [!NOTE]
 > **Governance (plate 10)** does not use Constitution v1.2 or the Snapshot rules. What is decided and in force comes from the TASK-23 changelog (sourced to 1 August 2026). How voting works today comes from the DAO voting platform, which takes priority wherever the changelog describes Snapshot voting.
 
 <details>
-<summary><b>Glossary: the 11 short forms used on the plates</b></summary>
+<summary><b>Glossary: the 8 short forms used on the plates</b></summary>
 <br>
 
 | Short form | Full form | Plates |
 |---|---|---|
-| AML | Anti-Money Laundering | 05, 07 |
+| AML | Anti-Money Laundering | 07 |
 | CBDC | Central Bank Digital Currency | 11 |
 | CSIRO | Commonwealth Scientific and Industrial Research Organisation | 01 |
-| CTF | Counter-Terrorism Financing | 05 |
 | DAO | Decentralised Autonomous Organisation | 10 |
 | DBFT | Democratic Byzantine Fault Tolerance | 01, 03 |
 | IPFS | InterPlanetary File System | 10 |
 | KYC | Know Your Customer | 07 |
-| Multisig | Multi-signature wallet | 10 |
-| RBA | Reserve Bank of Australia | 11 |
 | W3C | World Wide Web Consortium | 05 |
 
 </details>
