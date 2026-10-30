@@ -38,9 +38,9 @@ window.SOURCES = {
     ['Investor eligibility enforced at the point of trade', 'https://redbelly.network/asset-tokenisation'],
   ],
   '09': [
-    ['Accountability at protocol level (Polygraph: undeniable proofs of fraud) and functional level (identity layer: all participants known)', 'https://redbelly.network/whitepaper'],
-    ['Polygraph: the first accountable Byzantine consensus algorithm', 'https://redbelly.network/research'],
-    ['Participants verify identities; privacy protected through zero-knowledge proofs', 'https://redbelly.network/projectacacia'],
+    ['Accountability at protocol level (Polygraph: undeniable proofs of fraud) and functional level (identity layer: all network participants known)', 'https://redbelly.network/whitepaper'],
+    ['Polygraph: the first accountable Byzantine consensus algorithm', 'https://redbelly.network/research/polygraph-accountable-byzantine-agreement'],
+    ['Polygraph paper: if t ≥ n/3, it detects the malicious users that cause disagreement; honest participants detect at least n/3 responsible', 'https://redbelly.network/research/2021-ICDCS-Polygraph.pdf'],
   ],
   '10': [
     ['Signature voting on Redbelly: no gas, no transaction, never asks for approvals or transfers; ballots signed and receipts on IPFS', 'https://redbelly-governance.vercel.app/safety'],

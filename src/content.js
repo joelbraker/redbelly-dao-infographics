@@ -99,13 +99,13 @@ window.PLATES = [
   {
     id: '09', fig: 'Accountability at two levels', slug: 'identity-and-accountability', kicker: 'Identity and accountability',
     title: 'Known people, *accountable* network',
-    lede: 'Redbelly is designed around accountability, enforced at two levels.',
+    lede: 'Redbelly is designed for accountability, enforced at two levels.',
     notes: [
-      'Protocol: Polygraph creates undeniable proof if a node cheats.',
-      'Participants: an identity layer means everyone is known.',
-      'Privacy: zero-knowledge proofs show eligibility, not personal data.',
+      'Polygraph builds proof if honest nodes disagree.',
+      'The proof names at least 1/3 of nodes as responsible.',
+      'An identity layer means all participants are known.',
     ],
-    source: 'redbelly.network/whitepaper · redbelly.network/research · redbelly.network/projectacacia',
+    source: 'redbelly.network/whitepaper · redbelly.network/research (Polygraph paper)',
   },
   {
     id: '10', fig: 'One vote, start to finish', slug: 'governance', kicker: 'Governance',
